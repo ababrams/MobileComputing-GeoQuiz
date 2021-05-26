@@ -1,7 +1,11 @@
-package ecu.mobilecomputing.geoquiz
+import android.app.ActivityOptions
+import ecu.mobilecomputing.geoquiz.CheatActivity
+import ecu.mobilecomputing.geoquiz.QuizViewModel
+import ecu.mobilecomputing.geoquiz.R
 
 import android.app.Activity
 import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.PersistableBundle
@@ -10,8 +14,10 @@ import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import ecu.mobilecomputing.geoquiz.EXTRA_ANSWER_SHOWN
 
 private const val TAG = "MainActivity"
 private const val KEY_INDEX = "Index"
@@ -57,8 +63,14 @@ class MainActivity : AppCompatActivity() {
             quizViewModel.moveToNext()
             updateQuestion()
         }
-        cheatButton.setOnClickListener{
-            val intent = CheatActivity.newIntent(this, quizViewModel.currentQuestionAnswer)
+        cheatButton.setOnClickListener{ view ->
+            val answerIsTrue = quizViewModel.currentQuestionAnswer
+            val intent = CheatActivity.newIntent(this@MainActivity, answerIsTrue)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                val options = ActivityOptions
+                    .makeClipRevealAnimation(view, 0, 0, view.width, view.height)
+                startActivityForResult(intent, REQUEST_CODE_CHEAT, options.toBundle())
+            }
             startActivityForResult(intent, REQUEST_CODE_CHEAT)
         }
         updateQuestion()
